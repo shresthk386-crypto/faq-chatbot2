@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI FAQ Chatbot</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #141e30, #243b55);
+            overflow: auto;
+        }
+
+        .container {
+            width: 420px;
+            height: 650px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h2 {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: #ccc;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        #chatbox {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        input {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            font-size: 14px;
+        }
+
+        input::placeholder {
+            color: #bbb;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        #chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typing {
+            width: fit-content;
+            display: flex;
+            gap: 5px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h2>AI FAQ Chatbot</h2>
+            <p>Ask anything about orders, shipping, returns & more</p>
+        </div>
+
+        <div id="chatbox">
+
+            <div class="msg bot">
+                👋 Hello! How can I help you today?
+            </div>
+
+        </div>
+
+        <div class="input-area">
+            <input id="text" type="text" placeholder="Type your question...">
+            <button onclick="send()">Send</button>
+        </div>
+
+    </div>
+
+    <script>
+
+        function send() {
+
+            let input = document.getElementById("text");
+            let msg = input.value.trim();
+
+            if (msg === "") return;
+
+            let chatbox = document.getElementById("chatbox");
+
+            chatbox.innerHTML += `
+                <div class="msg user">
+                    ${msg}
+                </div>
+            `;
+
+            input.value = "";
+
+            let typing = document.createElement("div");
+            typing.className = "typing";
+            typing.id = "typing";
+
+            typing.innerHTML = `
+                <span></span>
+                <span></span>
+                <span></span>
+            `;
+
+            chatbox.appendChild(typing);
+
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            fetch('/get', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    'msg': msg
+                })
+            })
+            .then(r => r.text())
+            .then(d => {
+
+                document.getElementById("typing").remove();
+
+                chatbox.innerHTML += `
+                    <div class="msg bot">
+                        ${d}
+                    </div>
+                `;
+
+                chatbox.scrollTop = chatbox.scrollHeight;
+            });
+        }
+
+        document.getElementById("text").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                send();
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

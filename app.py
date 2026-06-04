@@ -18,7 +18,7 @@ faqs = {
     "custumer support ": "please , dial 98375xxx for guided custumer support .",
     "hii": "hellow how can i help you ." ,
     "parcel": "yes we deliver the parcel ." ,
-
+    "cashback": "no don't provide cash back offer  ." ,
 }
 
 # NLP Logic
